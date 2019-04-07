@@ -5,12 +5,14 @@ metadata:
   name: {{ template "fullname" . }}
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.class }}
 spec:
   rules:
-  - host: {{ .Release.Name }}.{{ .Values.basedomain }}
+  - host: {{ .Values.ingress.basedomain }}
     http:
       paths:
-      - path: /
+      - path: /.*
         backend:
           serviceName: {{ template "fullname" . }}
           servicePort: {{ .Values.service.externalPort }}
