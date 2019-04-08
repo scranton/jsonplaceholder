@@ -20,3 +20,5 @@ ingress:
   enabled: true
   class: gloo
   basedomain: gloo.example.com
+gloo:
+  namespace: gloo-system

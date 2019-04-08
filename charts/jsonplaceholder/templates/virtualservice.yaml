@@ -1,0 +1,35 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: default
+  namespace: {{ .Values.gloo.namespace }}
+spec:
+  virtualHost:
+    domains:
+    - {{ .Values.ingress.basedomain }}
+    routes:
+    - matcher:
+        prefix: /people
+      routeAction:
+        single:
+          upstream:
+            name: {{ .Release.Namespace }}-{{ template "fullname" . }}-{{ .Values.service.externalPort }}
+            namespace: {{ .Values.gloo.namespace }}
+      routePlugins:
+        prefixRewrite:
+          prefixRewrite: /users
+        transformations:
+          responseTransformation:
+            transformation_template:
+              headers:
+                x-test-phone:
+                  text: '{{ "{{" }} phone {{ "}}" }}'
+              body:
+                text: '{ "name": "{{ "{{" }} name {{ "}}" }}", "address": { "street": "{{ "{{" }} address.street {{ "}}" }}", "city": "{{ "{{" }} address.city {{ "}}" }}" } }'
+    - matcher:
+        prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: {{ .Release.Namespace }}-{{ template "fullname" . }}-{{ .Values.service.externalPort }}
+            namespace: {{ .Values.gloo.namespace }}
